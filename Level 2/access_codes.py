@@ -32,3 +32,20 @@ Inputs:
 Output:
     (int) 5
 """
+def answer(x):
+    forwards_and_backwards = []
+    if x:
+        forwards_and_backwards.append(x[0])
+    for item in x:
+        print("Array: " + str(x) + ". Processing: " + item)
+        match_found = False
+        for string in forwards_and_backwards:
+            print("Checking item against: " + string)
+            if item == string or item[::-1] == string:
+                print("Not unique. Matches: " + string)
+                match_found = True
+                break
+        if not match_found:
+            print("Added: " + item)
+            forwards_and_backwards.append(item)
+    return len(forwards_and_backwards)
