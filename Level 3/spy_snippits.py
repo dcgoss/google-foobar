@@ -57,4 +57,52 @@ Inputs:
 Output:
     (string) "c d a"
 """
+def get_search_term_index_dictionary(document, searchTerms):
+    # remove duplicate terms
+    searchTerms = list(set(searchTerms))
+    words_in_document = document.split()
+    search_term_index_dictionary = {}
+    for search_term in searchTerms:
+        search_term_index_dictionary[search_term] = [index for index, word in enumerate(words_in_document) if
+                                                     word == search_term]
+    return words_in_document, search_term_index_dictionary
 
+
+def find_slice_range_from_closest_matches(value, lists):
+    closest_matches = [value]
+    levels_deep = 0
+    while levels_deep <= len(lists) - 1:
+        next_match = min(lists[levels_deep], key=lambda num: abs(num - value))
+        closest_matches.append(next_match)
+        levels_deep += 1
+    closest_matches.sort()
+    return [closest_matches[0], closest_matches[len(closest_matches) - 1]]
+
+
+def find_smallest_slice(index_dictionary):
+    possible_slices = []
+    search_term_keys = [key for key in index_dictionary]
+    search_term_keys.sort(key=lambda key: len(index_dictionary[key]))
+    indexes = [index_dictionary[search_term] for search_term in search_term_keys]
+    for occurrence in index_dictionary[search_term_keys[0]]:
+        possible_slices.append(find_slice_range_from_closest_matches(occurrence, indexes[1:]))
+
+    # search reverse possibilities
+    search_term_keys = search_term_keys[::-1]
+    indexes = [index_dictionary[search_term] for search_term in search_term_keys]
+    for occurrence in index_dictionary[search_term_keys[0]]:
+        possible_slices.append(find_slice_range_from_closest_matches(occurrence, indexes[1:]))
+
+    possible_slices.sort(key=lambda slice_range: (slice_range[1] - slice_range[0], slice_range[0]))
+
+    try:
+        return possible_slices[0]
+    except IndexError:
+        return None
+
+
+def answer(document, searchTerms):
+    words_in_document, search_term_index_dictionary = get_search_term_index_dictionary(document, searchTerms)
+    smallest_slice = find_smallest_slice(search_term_index_dictionary)
+    if smallest_slice is None:
+        return None
